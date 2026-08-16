@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="theme-color" content="#1f6b52">
+<title>Sri Lanka · Budget &amp; Expenses</title>
+<style>
+  :root{
+    --bg:#f4f4f1; --card:#fff; --ink:#17191a; --mid:#6e6a63; --faint:#9d988f;
+    --line:#e5e3dd; --line2:#f0eee9;
+    --accent:#1f6b52; --accent-w:#eaf2ee;
+    --over:#b13f2c; --over-w:#fbedea;
+    --under:#2d7a4f; --under-w:#eaf5ee;
+    --c-stay:#1f6b52; --c-transport:#3f5f8a; --c-food:#b06d2a;
+    --c-activities:#6a8f3c; --c-flights:#5f4d8f; --c-misc:#7c766d;
+    --shadow:0 1px 2px rgba(20,18,15,.05),0 6px 18px -10px rgba(20,18,15,.18);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{max-width:100%;overflow-x:hidden;overflow-x:clip}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{width:100%;max-width:900px;margin:0 auto;padding:0 14px 64px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+  /* ---------- masthead ---------- */
+  .mast{padding:26px 0 16px;display:flex;align-items:flex-start;
+    justify-content:space-between;gap:14px}
+  .mast .k{font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:700}
+  .mast h1{font-size:27px;margin:7px 0 2px;letter-spacing:-.02em}
+  .mast .s{color:var(--mid);font-size:13.5px}
+  .mast-t{min-width:0}
+  .mast-a{display:flex;gap:7px;flex:0 0 auto;padding-top:5px}
+  .iconbtn{width:38px;height:38px;display:grid;place-items:center;padding:0;
+    border:1px solid var(--line);background:var(--card);border-radius:10px;
+    color:var(--mid);cursor:pointer;box-shadow:var(--shadow);
+    transition:color .15s ease,border-color .15s ease}
+  .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .iconbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .iconbtn svg{width:17px;height:17px;display:block}
+
+  /* ---------- sticky control deck ---------- */
+  .deck{position:sticky;top:0;z-index:40;background:rgba(244,244,241,.93);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);margin:0 -14px;padding:10px 14px}
+  .deck-in{max-width:900px;margin:0 auto}
+  .totals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .tot{background:var(--card);border:1px solid var(--line);border-radius:11px;
+    padding:9px 11px;min-width:0}
+  .tot .l{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--faint);font-weight:700;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .tot .v{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tot.plan .v{color:var(--ink)}
+  .tot.act  .v{color:var(--accent)}
+  .tot.var  .v{color:var(--mid)}
+  .tot.var.is-over  .v{color:var(--over)}
+  .tot.var.is-under .v{color:var(--under)}
+  .tot .sub{font-size:11px;color:var(--faint);margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .switches{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:9px}
+  .seg{display:inline-flex;background:#e9e7e1;border-radius:8px;padding:2px}
+  .seg button{border:0;background:transparent;font:inherit;font-size:12px;
+    font-weight:600;color:var(--mid);padding:5px 11px;border-radius:6px;cursor:pointer}
+  .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.09)}
+  .mini{display:inline-flex;align-items:center;gap:5px;background:var(--card);
+    border:1px solid var(--line);border-radius:8px;padding:4px 9px;font-size:12px;color:var(--mid)}
+  .mini input{width:46px;border:0;background:transparent;font:inherit;font-size:12px;
+    font-weight:700;color:var(--ink);text-align:right;padding:0}
+  .mini input:focus{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ---------- summary ---------- */
+  h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+    font-weight:700;margin:26px 0 9px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:15px 16px;box-shadow:var(--shadow)}
+  .tabs{display:flex;gap:4px;margin-bottom:13px;flex-wrap:wrap}
+  .tabs button{border:1px solid var(--line);background:var(--card);font:inherit;
+    font-size:12px;font-weight:600;color:var(--mid);padding:5px 12px;
+    border-radius:20px;cursor:pointer}
+  .tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  .bar-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline;
+    margin-bottom:3px}
+  .bar-row .n{font-size:13.5px;font-weight:600;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar-row .v{font-size:13.5px;font-weight:700;white-space:nowrap;
+    text-align:right;font-variant-numeric:tabular-nums}
+  .bar-row .v em{font-style:normal;color:var(--faint);font-weight:500;font-size:11.5px}
+  .track{height:7px;background:#efedE8;border-radius:6px;overflow:hidden;margin-bottom:13px;
+    display:flex}
+  .fill{height:100%;border-radius:6px;transition:width .35s ease}
+  .fill.actual{opacity:1}
+  .bar-group:last-child .track{margin-bottom:2px}
+
+  /* ---------- sections ---------- */
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+  .sec-h{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:13px 15px;cursor:pointer;user-select:none}
+  .sec-h:hover{background:#fbfaf8}
+  /* the title soaks up the slack, otherwise space-between parks the amount
+     in the middle of the card instead of flush against the chevron */
+  .sec-h .ttl{min-width:0;flex:1 1 auto}
+  .sec-h .d{font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--faint);font-weight:700}
+  .sec-h .t{font-size:16px;font-weight:600;letter-spacing:-.01em;margin-top:1px}
+  .sec-h .pl{font-size:12px;color:var(--faint);margin-top:1px}
+  /* fixed column so every card's figures share one right edge, whatever their length */
+  .sec-h .amt{flex:0 0 auto;margin-left:auto;text-align:right;white-space:nowrap;min-width:104px}
+  .sec-h .amt .p{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+  .sec-h .amt .a{font-size:11.5px;color:var(--faint);margin-top:1px;font-variant-numeric:tabular-nums}
+  .sec-h .amt .a.is-over{color:var(--over);font-weight:600}
+  .sec-h .amt .a.is-under{color:var(--under);font-weight:600}
+  .chev{width:9px;height:9px;border-right:2px solid var(--faint);
+    border-bottom:2px solid var(--faint);transform:rotate(45deg);
+    transition:transform .2s ease;flex:0 0 auto;margin-left:2px}
+  .sec.closed .chev{transform:rotate(-45deg)}
+  .sec.closed .sec-b{display:none}
+  .sec-b{border-top:1px solid var(--line2);padding:4px 15px 13px}
+
+  /* ---------- rows ---------- */
+  .row{display:grid;
+    grid-template-columns:22px 96px 1fr 92px 92px 26px;
+    gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line2)}
+  .row:last-of-type{border-bottom:0}
+  .row.off{opacity:.4}
+  .row input,.row select{font:inherit;font-size:13.5px;border:1px solid transparent;
+    background:transparent;border-radius:7px;padding:5px 7px;width:100%;min-width:0;
+    color:var(--ink)}
+  .row input:hover,.row select:hover{border-color:var(--line)}
+  .row input:focus,.row select:focus{outline:none;border-color:var(--accent);
+    background:var(--card);box-shadow:0 0 0 3px var(--accent-w)}
+  .row .money{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .row .money.act{color:var(--accent)}
+  .row .money::placeholder{color:#c9c4bb;font-weight:400}
+  .cat{position:relative}
+  .cat select{-webkit-appearance:none;appearance:none;font-size:11px;font-weight:700;
+    letter-spacing:.03em;text-transform:uppercase;padding-left:16px;cursor:pointer;
+    color:var(--mid);text-overflow:ellipsis}
+  .cat::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;
+    margin-top:-3.5px;border-radius:2px;background:var(--dot,var(--c-misc));z-index:1;
+    pointer-events:none}
+  .chk{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;justify-self:center}
+  .del{border:0;background:transparent;color:#cdc7bd;font-size:17px;line-height:1;
+    cursor:pointer;padding:3px 5px;border-radius:6px}
+  .del:hover{color:var(--over);background:var(--over-w)}
+  .rowhead{display:grid;grid-template-columns:22px 96px 1fr 92px 92px 26px;gap:8px;
+    padding:7px 0 5px;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--faint);font-weight:700;border-bottom:1px solid var(--line)}
+  .rowhead .r{text-align:right;padding-right:7px}
+
+  .addrow{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+  .addrow button{border:1px dashed var(--line);background:transparent;font:inherit;
+    font-size:12.5px;font-weight:600;color:var(--mid);padding:7px 13px;
+    border-radius:8px;cursor:pointer}
+  .addrow button:hover{border-color:var(--accent);color:var(--accent);
+    border-style:solid;background:var(--accent-w)}
+
+  /* ---------- footer tools ---------- */
+  .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+  .tools button{border:1px solid var(--line);background:var(--card);font:inherit;
+    font-size:13px;font-weight:600;color:var(--ink);padding:9px 15px;
+    border-radius:9px;cursor:pointer;box-shadow:var(--shadow)}
+  .tools button:hover{border-color:var(--accent);color:var(--accent)}
+  .tools button.danger:hover{border-color:var(--over);color:var(--over)}
+  .note{margin-top:16px;font-size:12.5px;color:var(--faint);line-height:1.6}
+  .saved{position:fixed;left:50%;bottom:18px;transform:translate(-50%,14px);
+    background:var(--ink);color:#fff;font-size:12px;font-weight:600;
+    padding:8px 15px;border-radius:20px;opacity:0;pointer-events:none;
+    transition:opacity .25s ease,transform .25s ease;z-index:80}
+  .saved.show{opacity:1;transform:translate(-50%,0)}
+
+  @media(max-width:700px){
+    .wrap{padding:0 11px 60px}
+    .deck{margin:0 -11px;padding:9px 11px}
+    .tot .v{font-size:16px}
+    .tot .l{font-size:9px;letter-spacing:.08em}
+    /* rows reflow to two lines so they stay usable one-handed */
+    .rowhead{display:none}
+    .row{grid-template-columns:22px 1fr 26px;
+      grid-template-areas:"chk name del" ". cat cat" ". money money";
+      gap:5px 8px;padding:11px 0}
+    .row .chk{grid-area:chk;align-self:start;margin-top:6px}
+    .row .name{grid-area:name;font-weight:600;font-size:14.5px}
+    .row .cat{grid-area:cat}
+    .row .cat select{padding-left:18px}
+    .row .del{grid-area:del;align-self:start}
+    .row .monies{grid-area:money;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .row .money{border:1px solid var(--line);background:#fcfbf9}
+  }
+  @media(min-width:701px){ .row .monies{display:contents} }
+  @media(prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="mast">
+  <div class="mast-t">
+    <div class="k">Master budget</div>
+    <h1>Sri Lanka</h1>
+    <div class="s">27 September – 4 October 2026 · everything on this page is editable</div>
+  </div>
+  <div class="mast-a">
+    <button id="bExport" class="iconbtn" title="Export backup — downloads a dated .json" aria-label="Export backup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </button>
+    <button id="bImport" class="iconbtn" title="Import backup — replaces what's on this device" aria-label="Import backup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 8 12 3 17 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+    </button>
+    <input type="file" id="fileIn" accept="application/json,.json" hidden>
+  </div>
+</div>
+
+<div class="deck">
+  <div class="deck-in">
+    <div class="totals">
+      <div class="tot plan"><div class="l">Planned</div><div class="v num" id="tPlan">—</div><div class="sub" id="tPlanSub"></div></div>
+      <div class="tot act"><div class="l">Actual</div><div class="v num" id="tAct">—</div><div class="sub" id="tActSub"></div></div>
+      <div class="tot var" id="tVarBox"><div class="l">Difference</div><div class="v num" id="tVar">—</div><div class="sub" id="tVarSub"></div></div>
+    </div>
+    <div class="switches">
+      <div class="seg" id="segView">
+        <button data-v="total" class="on">Total</button><button data-v="pp">Per person</button>
+      </div>
+      <div class="seg" id="segCur">
+        <button data-c="INR" class="on">₹ INR</button><button data-c="LKR">LKR</button>
+      </div>
+      <label class="mini">People <input id="fPeople" type="number" min="1" max="12" step="1"></label>
+      <label class="mini">LKR/₹ <input id="fRate" type="number" min="0.1" step="0.1"></label>
+      <label class="mini">Buffer <input id="fBuffer" type="number" min="0" max="50" step="1">%</label>
+    </div>
+  </div>
+</div>
+
+<h2>Where the money goes</h2>
+<div class="panel">
+  <div class="tabs" id="tabs">
+    <button data-t="cat" class="on">By category</button>
+    <button data-t="day">By day</button>
+    <button data-t="place">By place</button>
+  </div>
+  <div id="bars"></div>
+</div>
+
+<h2>Line by line</h2>
+<div id="sections"></div>
+
+<div class="tools">
+  <button id="bAdd">+ Add a day</button>
+  <button id="bReset" class="danger">Reset to estimates</button>
+</div>
+
+
+</div>
+<div class="saved" id="saved">Saved</div>
+
+<script>
+(function(){
+"use strict";
+
+var CATS = ["Stay","Transport","Food","Activities","Flights","Misc"];
+var CATVAR = {Stay:"--c-stay",Transport:"--c-transport",Food:"--c-food",
+              Activities:"--c-activities",Flights:"--c-flights",Misc:"--c-misc"};
+
+function mk(cat,name,plan,on){ return {id:uid(),cat:cat,name:name,plan:plan,act:null,on:on!==false}; }
+/* ids must not collide with ones already sitting in localStorage from an earlier
+   session, so stamp them with the clock rather than a counter that restarts at 0 */
+var _n = 0;
+function uid(){ _n++; return "i" + Date.now().toString(36) + "_" + _n; }
+
+function defaults(){
+  _n = 0;
+  return {
+   v:1, dateShift:2, people:3, rate:3.5, buffer:8, view:"total", cur:"INR", tab:"cat",
+   sections:[
+    {id:"pre", date:"Before you go", title:"Flights & admin", place:"—", open:true, items:[
+      mk("Flights","Parents · Guwahati ⇄ Colombo (2 people)",69782),
+      mk("Flights","Naman · Delhi ⇄ Colombo",21000),
+      mk("Misc","Travel insurance · 3 people, 8 days",2000),
+      mk("Misc","ETA visas · free for Indian passports",0),
+      mk("Transport","Guwahati & Delhi airport cabs",3000)
+    ]},
+    {id:"d1", date:"Sun 27 Sep", title:"Arrive Colombo", place:"Negombo", open:false, items:[
+      mk("Stay","Negombo hotel · triple, 1 night",9000),
+      mk("Transport","Airport → Negombo transfer",3000),
+      mk("Food","Dinner · 3 people",3600)
+    ]},
+    {id:"d2", date:"Mon 28 Sep", title:"To Kandy", place:"Kandy", open:false, items:[
+      mk("Stay","Kandy hotel · triple, 1 night",15000),
+      mk("Transport","Car · Negombo → Kandy",6000),
+      mk("Activities","Spice garden",800),
+      mk("Activities","Peradeniya Botanical Gardens · 3 entries",2600),
+      mk("Activities","Temple of the Tooth · 3 entries",1700),
+      mk("Food","Meals · 3 people",6000)
+    ]},
+    {id:"d3", date:"Tue 29 Sep", title:"Nuwara Eliya · birthday", place:"Nuwara Eliya", open:false, items:[
+      mk("Stay","Heritance Tea Factory · triple, 1 night",18000),
+      mk("Transport","Car · Kandy → Nuwara Eliya",6000),
+      mk("Activities","Ramboda Falls",500),
+      mk("Activities","Tea factory tour & tasting · 3",2500),
+      mk("Food","Birthday lunch, high tea, dinner",9000)
+    ]},
+    {id:"d4", date:"Wed 30 Sep", title:"The train to Ella", place:"Ella", open:false, items:[
+      mk("Stay","98 Acres · triple, night 1",15000),
+      mk("Transport","Car · tea estate, Nanu Oya drop, luggage to Ella",6000),
+      mk("Transport","Train · Nanu Oya → Ella, 2nd class reserved × 3",2500),
+      mk("Activities","Pedro tea estate tour · 3",1000),
+      mk("Food","Meals · 3 people",6500)
+    ]},
+    {id:"d5", date:"Thu 1 Oct", title:"Rest day", place:"Ella", open:false, items:[
+      mk("Stay","98 Acres · triple, night 2",15000),
+      mk("Transport","Tuk-tuks · Nine Arch and town",3000),
+      mk("Activities","Flying Ravana zipline",3000),
+      mk("Activities","Nine Arch, Little Adam's Peak, Ravana Falls",3000),
+      mk("Food","Meals · 3 people",6000)
+    ]},
+    {id:"d6", date:"Fri 2 Oct", title:"Down to the coast", place:"Mirissa", open:false, items:[
+      mk("Stay","Mirissa hotel · triple, night 1",13000),
+      mk("Transport","Car · Ella → Mirissa",7000),
+      mk("Food","Meals · 3 people",6000),
+      mk("Misc","Sundries",1500),
+      mk("Activities","Udawalawe safari — optional, parked",18000,false)
+    ]},
+    {id:"d7", date:"Sat 3 Oct", title:"Galle Fort", place:"Mirissa", open:false, items:[
+      mk("Stay","Mirissa hotel · triple, night 2",13000),
+      mk("Transport","Car · Mirissa ⇄ Galle",5000),
+      mk("Activities","Galle Fort · museum, café, ramparts",4500),
+      mk("Food","Meals · 3 people",6000)
+    ]},
+    {id:"d8", date:"Sun 4 Oct", title:"Fly home", place:"Colombo", open:false, items:[
+      mk("Transport","Car · Mirissa → Colombo airport",6000),
+      mk("Food","Breakfast boxes & airport",2250)
+    ]},
+    {id:"across", date:"Across the trip", title:"Tips & incidentals", place:"—", open:false, items:[
+      mk("Misc","Driver's tip · ₹1,200 × 8 days",9600),
+      mk("Misc","SIM cards & data · 3",1800),
+      mk("Misc","Odds and ends",3600)
+    ]}
+   ]
+  };
+}
+
+var KEY = "srilanka-budget-v1";
+
+/* The trip moved one day later (26 Sep–3 Oct became 27 Sep–4 Oct). Anything already
+   saved in this browser still carries the old labels, so relabel it on load rather
+   than making the user start over and lose amounts they've entered. */
+var DATE_SHIFT = {
+  "Sat 26 Sep":"Sun 27 Sep", "Sun 27 Sep":"Mon 28 Sep", "Mon 28 Sep":"Tue 29 Sep",
+  "Tue 29 Sep":"Wed 30 Sep", "Wed 30 Sep":"Thu 1 Oct",  "Thu 1 Oct":"Fri 2 Oct",
+  "Fri 2 Oct":"Sat 3 Oct",   "Sat 3 Oct":"Sun 4 Oct"
+};
+var OLD_ORDER = ["Sat 26 Sep","Sun 27 Sep","Mon 28 Sep","Tue 29 Sep",
+                 "Wed 30 Sep","Thu 1 Oct","Fri 2 Oct","Sat 3 Oct"];
+
+function migrate(d){
+  if(d.dateShift === 2) return d;                 /* already done */
+  /* walk the old labels backwards so a relabelled day is never relabelled twice */
+  for(var k = OLD_ORDER.length - 1; k >= 0; k--){
+    var from = OLD_ORDER[k], to = DATE_SHIFT[from];
+    d.sections.forEach(function(s){ if(s.date === from) s.date = to; });
+  }
+  d.dateShift = 2;
+  return d;
+}
+
+var S = load();
+
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){
+      var d = JSON.parse(raw);
+      if(d && d.sections && d.sections.length) return migrate(d);
+    }
+  }catch(e){}
+  return defaults();
+}
+var saveTimer=null, savedEl=document.getElementById("saved");
+function toast(msg, ms){
+  savedEl.textContent = msg || "Saved";
+  savedEl.classList.add("show");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){ savedEl.classList.remove("show"); }, ms || 1100);
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+  toast("Saved");
+}
+function countLines(d){
+  return (d.sections||[]).reduce(function(t,s){ return t + (s.items||[]).length; }, 0);
+}
+
+/* ---------- money ---------- */
+function n(x){ var v = parseFloat(x); return isFinite(v) ? v : 0; }
+function conv(inr){ return S.cur === "LKR" ? inr * n(S.rate) : inr; }
+function disp(inr){
+  var v = conv(inr);
+  if(S.view === "pp") v = v / Math.max(1, n(S.people));
+  return v;
+}
+function fmt(inr){
+  var v = Math.round(disp(inr));
+  var sym = S.cur === "LKR" ? "LKR " : "₹";
+  return sym + v.toLocaleString(S.cur === "LKR" ? "en-LK" : "en-IN");
+}
+
+/* ---------- maths ---------- */
+function secPlan(s){ var t=0; s.items.forEach(function(i){ if(i.on) t += n(i.plan); }); return t; }
+function secAct(s){ var t=0; s.items.forEach(function(i){ if(i.on && i.act !== null && i.act !== "") t += n(i.act); }); return t; }
+function secHasAct(s){ return s.items.some(function(i){ return i.on && i.act !== null && i.act !== ""; }); }
+function grand(){
+  var p=0,a=0;
+  S.sections.forEach(function(s){ p += secPlan(s); a += secAct(s); });
+  return {plan:p, planBuf: p * (1 + n(S.buffer)/100), act:a};
+}
+function byCat(){
+  var m={}; CATS.forEach(function(c){ m[c]={plan:0,act:0}; });
+  S.sections.forEach(function(s){ s.items.forEach(function(i){
+    if(!i.on) return;
+    if(!m[i.cat]) m[i.cat]={plan:0,act:0};
+    m[i.cat].plan += n(i.plan);
+    if(i.act !== null && i.act !== "") m[i.cat].act += n(i.act);
+  });});
+  return m;
+}
+function byPlace(){
+  var m={};
+  S.sections.forEach(function(s){
+    var k = s.place && s.place !== "—" ? s.place : "Not on the road";
+    if(!m[k]) m[k]={plan:0,act:0};
+    m[k].plan += secPlan(s); m[k].act += secAct(s);
+  });
+  return m;
+}
+
+/* ---------- summary bars ---------- */
+function renderBars(){
+  var data, order;
+  if(S.tab === "cat"){
+    data = byCat();
+    order = Object.keys(data).filter(function(k){ return data[k].plan || data[k].act; });
+    order.sort(function(a,b){ return data[b].plan - data[a].plan; });
+  } else if(S.tab === "place"){
+    data = byPlace();
+    order = Object.keys(data);
+    order.sort(function(a,b){ return data[b].plan - data[a].plan; });
+  } else {
+    data = {}; order = [];
+    S.sections.forEach(function(s){
+      var k = s.date + " · " + s.title;
+      data[k] = {plan:secPlan(s), act:secAct(s), cat:null};
+      order.push(k);
+    });
+  }
+  var max = 0;
+  order.forEach(function(k){ max = Math.max(max, data[k].plan, data[k].act); });
+  if(!max) max = 1;
+
+  var html = order.map(function(k){
+    var d = data[k];
+    var col = (S.tab === "cat" && CATVAR[k]) ? "var("+CATVAR[k]+")" : "var(--accent)";
+    var pw = (d.plan / max * 100).toFixed(1);
+    var aw = (d.act  / max * 100).toFixed(1);
+    var actBit = d.act ? ' <em>· spent '+esc(fmt(d.act))+'</em>' : '';
+    return '<div class="bar-group">'
+      + '<div class="bar-row"><div class="n">'+esc(k)+'</div>'
+      + '<div class="v">'+esc(fmt(d.plan))+actBit+'</div></div>'
+      + '<div class="track" title="planned">'
+      +   '<div class="fill" style="width:'+pw+'%;background:'+col+';opacity:.26"></div>'
+      + '</div>'
+      + (d.act ? '<div class="track" style="margin-top:-11px" title="actual">'
+      +   '<div class="fill actual" style="width:'+aw+'%;background:'+col+'"></div></div>' : '')
+      + '</div>';
+  }).join("");
+  document.getElementById("bars").innerHTML = html ||
+    '<div style="color:var(--faint);font-size:13.5px">Nothing ticked yet.</div>';
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+
+/* ---------- totals deck ---------- */
+function renderTotals(){
+  var g = grand();
+  var buf = n(S.buffer);
+  document.getElementById("tPlan").textContent = fmt(g.plan);
+  document.getElementById("tPlanSub").textContent = buf > 0
+    ? "with " + buf + "% buffer · " + fmt(g.planBuf) : "no buffer";
+  document.getElementById("tAct").textContent = g.act ? fmt(g.act) : "—";
+  document.getElementById("tActSub").textContent = g.act
+    ? Math.round(g.act / (g.plan||1) * 100) + "% of planned" : "nothing logged yet";
+
+  var d = g.act - g.plan, box = document.getElementById("tVarBox");
+  box.classList.remove("is-over","is-under");
+  if(g.act){
+    box.classList.add(d > 0 ? "is-over" : "is-under");
+    document.getElementById("tVar").textContent = (d > 0 ? "+" : "−") + fmt(Math.abs(d));
+    document.getElementById("tVarSub").textContent = d > 0 ? "over the estimate" : "under the estimate";
+  } else {
+    document.getElementById("tVar").textContent = "—";
+    document.getElementById("tVarSub").textContent = "fill in Actual as you spend";
+  }
+}
+
+/* ---------- sections ---------- */
+function rowHTML(sid, it){
+  var opts = CATS.map(function(c){
+    return '<option value="'+c+'"'+(c===it.cat?" selected":"")+'>'+c+'</option>';
+  }).join("");
+  return '<div class="row'+(it.on?"":" off")+'" data-s="'+sid+'" data-i="'+it.id+'">'
+    + '<input class="chk" type="checkbox" data-f="on"'+(it.on?" checked":"")+' aria-label="Include this line">'
+    + '<div class="cat" style="--dot:var('+(CATVAR[it.cat]||"--c-misc")+')">'
+    +   '<select data-f="cat" aria-label="Category">'+opts+'</select></div>'
+    + '<input class="name" data-f="name" value="'+esc(it.name)+'" aria-label="Item">'
+    + '<div class="monies">'
+    +   '<input class="money plan num" data-f="plan" inputmode="decimal" value="'+(it.plan===0?"0":esc(it.plan))+'" placeholder="Planned" aria-label="Planned amount">'
+    +   '<input class="money act num" data-f="act" inputmode="decimal" value="'+(it.act===null||it.act===""?"":esc(it.act))+'" placeholder="Actual" aria-label="Actual amount">'
+    + '</div>'
+    + '<button class="del" data-f="del" title="Delete line" aria-label="Delete line">×</button>'
+    + '</div>';
+}
+
+function secHTML(s){
+  var p = secPlan(s), a = secAct(s), has = secHasAct(s);
+  var cls = has ? (a > p ? "is-over" : "is-under") : "";
+  var sub = has ? "spent " + fmt(a) : (s.items.length + " line" + (s.items.length===1?"":"s"));
+  return '<div class="sec'+(s.open?"":" closed")+'" data-s="'+s.id+'">'
+    + '<div class="sec-h" data-f="toggle">'
+    +   '<div class="ttl"><div class="d">'+esc(s.date)+'</div><div class="t">'+esc(s.title)+'</div>'
+    +     (s.place && s.place!=="—" ? '<div class="pl">'+esc(s.place)+'</div>' : '')+'</div>'
+    +   '<div class="amt"><div class="p num">'+esc(fmt(p))+'</div>'
+    +     '<div class="a '+cls+' num">'+esc(sub)+'</div></div>'
+    +   '<div class="chev"></div>'
+    + '</div>'
+    + '<div class="sec-b">'
+    +   '<div class="rowhead"><div></div><div>Category</div><div>Item</div>'
+    +     '<div class="r">Planned</div><div class="r">Actual</div><div></div></div>'
+    +   s.items.map(function(i){ return rowHTML(s.id, i); }).join("")
+    +   '<div class="addrow"><button data-f="add">+ Add a line</button>'
+    +     '<button data-f="delsec">Delete this day</button></div>'
+    + '</div></div>';
+}
+
+function renderSections(){
+  document.getElementById("sections").innerHTML = S.sections.map(secHTML).join("");
+}
+
+/* update only the numbers, so typing never loses focus */
+function recalc(){
+  renderTotals();
+  renderBars();
+  S.sections.forEach(function(s){
+    var el = document.querySelector('.sec[data-s="'+s.id+'"]');
+    if(!el) return;
+    var p = secPlan(s), a = secAct(s), has = secHasAct(s);
+    el.querySelector(".amt .p").textContent = fmt(p);
+    var sa = el.querySelector(".amt .a");
+    sa.classList.remove("is-over","is-under");
+    if(has){ sa.classList.add(a > p ? "is-over" : "is-under"); sa.textContent = "spent " + fmt(a); }
+    else { sa.textContent = s.items.length + " line" + (s.items.length===1?"":"s"); }
+  });
+}
+function renderAll(){ renderSections(); recalc(); }
+
+function find(sid, iid){
+  var s = null, i = null;
+  S.sections.some(function(x){ if(x.id===sid){ s=x; return true; } });
+  if(s && iid) s.items.some(function(y){ if(y.id===iid){ i=y; return true; } });
+  return {s:s, i:i};
+}
+
+/* ---------- events ---------- */
+var secWrap = document.getElementById("sections");
+
+secWrap.addEventListener("input", function(e){
+  var row = e.target.closest(".row"); if(!row) return;
+  var f = e.target.dataset.f, r = find(row.dataset.s, row.dataset.i);
+  if(!r.i) return;
+  if(f === "name") r.i.name = e.target.value;
+  else if(f === "plan") r.i.plan = e.target.value === "" ? 0 : n(e.target.value);
+  else if(f === "act") r.i.act = e.target.value === "" ? null : n(e.target.value);
+  recalc(); save();
+});
+
+secWrap.addEventListener("change", function(e){
+  var row = e.target.closest(".row");
+  var f = e.target.dataset.f;
+  if(row && f === "on"){
+    var r = find(row.dataset.s, row.dataset.i);
+    r.i.on = e.target.checked;
+    row.classList.toggle("off", !r.i.on);
+    recalc(); save(); return;
+  }
+  if(row && f === "cat"){
+    var r2 = find(row.dataset.s, row.dataset.i);
+    r2.i.cat = e.target.value;
+    row.querySelector(".cat").style.setProperty("--dot","var("+(CATVAR[e.target.value]||"--c-misc")+")");
+    recalc(); save(); return;
+  }
+});
+
+secWrap.addEventListener("click", function(e){
+  var btn = e.target.closest("[data-f]"); if(!btn) return;
+  var f = btn.dataset.f;
+  var secEl = e.target.closest(".sec"); if(!secEl) return;
+  var sid = secEl.dataset.s, r = find(sid);
+
+  if(f === "toggle"){
+    r.s.open = !r.s.open;
+    secEl.classList.toggle("closed", !r.s.open);
+    save(); return;
+  }
+  if(f === "del"){
+    var row = e.target.closest(".row");
+    r.s.items = r.s.items.filter(function(x){ return x.id !== row.dataset.i; });
+    renderAll(); save(); return;
+  }
+  if(f === "add"){
+    r.s.items.push(mk("Misc","",0));
+    r.s.open = true;
+    renderAll(); save();
+    var rows = document.querySelectorAll('.sec[data-s="'+sid+'"] .row');
+    var last = rows[rows.length-1];
+    if(last) last.querySelector(".name").focus();
+    return;
+  }
+  if(f === "delsec"){
+    if(!confirm('Delete "'+r.s.title+'" and all '+r.s.items.length+' of its lines?')) return;
+    S.sections = S.sections.filter(function(x){ return x.id !== sid; });
+    renderAll(); save(); return;
+  }
+});
+
+/* deck controls */
+function seg(id, key, attr){
+  document.getElementById(id).addEventListener("click", function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    S[key] = b.dataset[attr];
+    [].forEach.call(this.querySelectorAll("button"), function(x){ x.classList.toggle("on", x===b); });
+    recalc(); save();
+  });
+}
+seg("segView","view","v");
+seg("segCur","cur","c");
+
+document.getElementById("tabs").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  S.tab = b.dataset.t;
+  [].forEach.call(this.querySelectorAll("button"), function(x){ x.classList.toggle("on", x===b); });
+  renderBars(); save();
+});
+
+[["fPeople","people"],["fRate","rate"],["fBuffer","buffer"]].forEach(function(p){
+  var el = document.getElementById(p[0]);
+  el.value = S[p[1]];
+  el.addEventListener("input", function(){
+    S[p[1]] = el.value === "" ? 0 : n(el.value);
+    recalc(); save();
+  });
+});
+
+/* add a day */
+document.getElementById("bAdd").addEventListener("click", function(){
+  var t = prompt("Name this day or section", "New day");
+  if(t === null) return;
+  S.sections.push({id:"s"+Date.now(), date:"", title:t||"New day", place:"", open:true, items:[]});
+  renderAll(); save();
+  var els = document.querySelectorAll(".sec");
+  if(els.length) els[els.length-1].scrollIntoView({behavior:"smooth", block:"center"});
+});
+
+/* ---------- export / import ---------- */
+
+document.getElementById("bExport").addEventListener("click", function(){
+  var now = new Date();
+  var stamp = now.getFullYear() + "-"
+            + String(now.getMonth()+1).padStart(2,"0") + "-"
+            + String(now.getDate()).padStart(2,"0");
+  var out = JSON.parse(JSON.stringify(S));
+  out.exportedAt = now.toISOString();
+  out.app = "sri-lanka-budget";
+
+  var blob = new Blob([JSON.stringify(out,null,1)], {type:"application/json"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "sri-lanka-budget-" + stamp + ".json";   /* dated, so backups don't overwrite */
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  toast("Exported " + countLines(S) + " lines", 2400);
+});
+
+document.getElementById("bImport").addEventListener("click", function(){
+  document.getElementById("fileIn").click();
+});
+
+/* Accept anything that looks like our file, fill in anything a older/partial
+   backup is missing, and never silently overwrite work already on this device. */
+function normalise(d){
+  if(!d || typeof d !== "object") throw new Error("that isn't JSON I recognise");
+  if(!Array.isArray(d.sections) || !d.sections.length) throw new Error("no budget sections in it");
+  var base = defaults();
+  var out = {
+    v: 1,
+    /* carried through so migrate() can tell an old backup (old date labels)
+       from a current one and only shift the former */
+    dateShift: d.dateShift === 2 ? 2 : undefined,
+    people: isFinite(parseFloat(d.people)) ? parseFloat(d.people) : base.people,
+    rate:   isFinite(parseFloat(d.rate))   ? parseFloat(d.rate)   : base.rate,
+    buffer: isFinite(parseFloat(d.buffer)) ? parseFloat(d.buffer) : base.buffer,
+    view:  (d.view === "pp"   ? "pp"   : "total"),
+    cur:   (d.cur  === "LKR"  ? "LKR"  : "INR"),
+    tab:   (["cat","day","place"].indexOf(d.tab) >= 0 ? d.tab : "cat"),
+    sections: []
+  };
+  d.sections.forEach(function(s, si){
+    if(!s || typeof s !== "object") return;
+    out.sections.push({
+      id:    String(s.id || ("s" + Date.now() + "_" + si)),
+      date:  String(s.date  == null ? "" : s.date),
+      title: String(s.title == null ? "Untitled" : s.title),
+      place: String(s.place == null ? "" : s.place),
+      open:  !!s.open,
+      items: (Array.isArray(s.items) ? s.items : []).map(function(i){
+        return {
+          id:   String(i.id || uid()),
+          cat:  CATS.indexOf(i.cat) >= 0 ? i.cat : "Misc",
+          name: String(i.name == null ? "" : i.name),
+          plan: isFinite(parseFloat(i.plan)) ? parseFloat(i.plan) : 0,
+          act:  (i.act === null || i.act === "" || i.act === undefined || !isFinite(parseFloat(i.act)))
+                  ? null : parseFloat(i.act),
+          on:   i.on !== false
+        };
+      })
+    });
+  });
+  if(!out.sections.length) throw new Error("no usable sections in it");
+  return out;
+}
+
+document.getElementById("fileIn").addEventListener("change", function(e){
+  var f = e.target.files[0];
+  e.target.value = "";                       /* so re-picking the same file still fires */
+  if(!f) return;
+  if(f.size > 8 * 1024 * 1024){ alert("That file is unexpectedly large — is it the right one?"); return; }
+
+  var fr = new FileReader();
+  fr.onerror = function(){ alert("Couldn't read that file."); };
+  fr.onload = function(){
+    var incoming;
+    try{
+      incoming = migrate(normalise(JSON.parse(String(fr.result))));
+    }catch(err){
+      alert("That doesn't look like a budget backup.\n\n" + err.message);
+      return;
+    }
+    var here = countLines(S), there = countLines(incoming);
+    var spentHere = grand().act;
+    var warn = "Import " + there + " lines from this file?\n\n"
+             + "This replaces everything currently on this device — "
+             + here + " lines"
+             + (spentHere ? ", including " + fmt(spentHere) + " of logged spending" : "")
+             + ".\n\nExport a backup first if you're not sure.";
+    if(!confirm(warn)) return;
+
+    S = incoming;
+    syncDeck(); renderAll(); save();
+    toast("Imported " + there + " lines", 2600);
+  };
+  fr.readAsText(f);
+});
+document.getElementById("bReset").addEventListener("click", function(){
+  if(!confirm("Throw away your edits and go back to the original estimates?")) return;
+  S = defaults(); syncDeck(); renderAll(); save();
+});
+
+function syncDeck(){
+  document.getElementById("fPeople").value = S.people;
+  document.getElementById("fRate").value = S.rate;
+  document.getElementById("fBuffer").value = S.buffer;
+  [].forEach.call(document.querySelectorAll("#segView button"), function(b){
+    b.classList.toggle("on", b.dataset.v === S.view); });
+  [].forEach.call(document.querySelectorAll("#segCur button"), function(b){
+    b.classList.toggle("on", b.dataset.c === S.cur); });
+  [].forEach.call(document.querySelectorAll("#tabs button"), function(b){
+    b.classList.toggle("on", b.dataset.t === S.tab); });
+}
+
+syncDeck();
+renderAll();
+})();
+</script>
+</body>
+</html>
