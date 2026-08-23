@@ -288,7 +288,7 @@ function uid(){ _n++; return "i" + Date.now().toString(36) + "_" + _n; }
 function defaults(){
   _n = 0;
   return {
-   v:1, dateShift:2, people:3, rate:3.5, buffer:8, view:"total", cur:"INR", tab:"cat",
+   v:1, dateShift:2, titleRev:3, people:3, rate:3.5, buffer:8, view:"total", cur:"INR", tab:"cat",
    sections:[
     {id:"pre", date:"Before you go", title:"Flights & admin", place:"—", open:true, items:[
       mk("Flights","Parents · Guwahati ⇄ Colombo (2 people)",69782),
@@ -302,7 +302,7 @@ function defaults(){
       mk("Transport","Airport → Negombo transfer",3000),
       mk("Food","Dinner · 3 people",3600)
     ]},
-    {id:"d2", date:"Mon 28 Sep", title:"To Kandy", place:"Kandy", open:false, items:[
+    {id:"d2", date:"Mon 28 Sep", title:"To Kandy \u00b7 birthday", place:"Kandy", open:false, items:[
       mk("Stay","Kandy hotel · triple, 1 night",15000),
       mk("Transport","Car · Negombo → Kandy",6000),
       mk("Activities","Spice garden",800),
@@ -310,7 +310,7 @@ function defaults(){
       mk("Activities","Temple of the Tooth · 3 entries",1700),
       mk("Food","Meals · 3 people",6000)
     ]},
-    {id:"d3", date:"Tue 29 Sep", title:"Nuwara Eliya · birthday", place:"Nuwara Eliya", open:false, items:[
+    {id:"d3", date:"Tue 29 Sep", title:"Nuwara Eliya", place:"Nuwara Eliya", open:false, items:[
       mk("Stay","Heritance Tea Factory · triple, 1 night",18000),
       mk("Transport","Car · Kandy → Nuwara Eliya",6000),
       mk("Activities","Ramboda Falls",500),
@@ -348,7 +348,7 @@ function defaults(){
       mk("Transport","Car · Mirissa → Colombo airport",6000),
       mk("Food","Breakfast boxes & airport",2250)
     ]},
-    {id:"across", date:"Across the trip", title:"Tips & incidentals", place:"—", open:false, items:[
+    {id:"across", date:"Across the trip", title:"Car, SIM & incidentals", place:"—", open:false, items:[
       mk("Misc","Driver's tip · ₹1,200 × 8 days",9600),
       mk("Misc","SIM cards & data · 3",1800),
       mk("Misc","Odds and ends",3600)
@@ -378,6 +378,19 @@ function migrate(d){
     d.sections.forEach(function(s){ if(s.date === from) s.date = to; });
   }
   d.dateShift = 2;
+  return titles(d);
+}
+
+/* Section headings aren't editable in the UI, so corrections have to come through here.
+   28 Sep is the Kandy day, not Nuwara Eliya, and "Across the trip" now carries the car. */
+function titles(d){
+  if(d.titleRev === 3) return d;
+  d.sections.forEach(function(s){
+    if(s.id === "d3") s.title = s.title.replace(/\s*\u00b7\s*birthday/i, "");
+    if(s.id === "d2" && !/birthday/i.test(s.title)) s.title += " \u00b7 birthday";
+    if(s.id === "across" && /^Tips & incidentals$/.test(s.title)) s.title = "Car, SIM & incidentals";
+  });
+  d.titleRev = 3;
   return d;
 }
 
@@ -388,7 +401,7 @@ function load(){
     var raw = localStorage.getItem(KEY);
     if(raw){
       var d = JSON.parse(raw);
-      if(d && d.sections && d.sections.length) return migrate(d);
+      if(d && d.sections && d.sections.length) return titles(migrate(d));
     }
   }catch(e){}
   return defaults();
@@ -760,6 +773,7 @@ function normalise(d){
     /* carried through so migrate() can tell an old backup (old date labels)
        from a current one and only shift the former */
     dateShift: d.dateShift === 2 ? 2 : undefined,
+    titleRev: d.titleRev === 3 ? 3 : undefined,
     people: isFinite(parseFloat(d.people)) ? parseFloat(d.people) : base.people,
     rate:   isFinite(parseFloat(d.rate))   ? parseFloat(d.rate)   : base.rate,
     buffer: isFinite(parseFloat(d.buffer)) ? parseFloat(d.buffer) : base.buffer,
@@ -804,7 +818,7 @@ document.getElementById("fileIn").addEventListener("change", function(e){
   fr.onload = function(){
     var incoming;
     try{
-      incoming = migrate(normalise(JSON.parse(String(fr.result))));
+      incoming = titles(migrate(normalise(JSON.parse(String(fr.result)))));
     }catch(err){
       alert("That doesn't look like a budget backup.\n\n" + err.message);
       return;
