@@ -288,7 +288,7 @@ function uid(){ _n++; return "i" + Date.now().toString(36) + "_" + _n; }
 function defaults(){
   _n = 0;
   return {
-   v:1, dateShift:2, titleRev:3, people:3, rate:3.5, buffer:8, view:"total", cur:"INR", tab:"cat",
+   v:1, dateShift:2, titleRev:4, people:3, rate:3.5, buffer:8, view:"total", cur:"INR", tab:"cat",
    sections:[
     {id:"pre", date:"Before you go", title:"Flights & admin", place:"—", open:true, items:[
       mk("Flights","Parents · Guwahati ⇄ Colombo (2 people)",69782),
@@ -348,7 +348,7 @@ function defaults(){
       mk("Transport","Car · Mirissa → Colombo airport",6000),
       mk("Food","Breakfast boxes & airport",2250)
     ]},
-    {id:"across", date:"Across the trip", title:"Car, SIM & incidentals", place:"—", open:false, items:[
+    {id:"across", date:"Across the trip", title:"Other costs", place:"—", open:false, items:[
       mk("Misc","Driver's tip · ₹1,200 × 8 days",9600),
       mk("Misc","SIM cards & data · 3",1800),
       mk("Misc","Odds and ends",3600)
@@ -384,13 +384,14 @@ function migrate(d){
 /* Section headings aren't editable in the UI, so corrections have to come through here.
    28 Sep is the Kandy day, not Nuwara Eliya, and "Across the trip" now carries the car. */
 function titles(d){
-  if(d.titleRev === 3) return d;
+  if(d.titleRev === 4) return d;
   d.sections.forEach(function(s){
     if(s.id === "d3") s.title = s.title.replace(/\s*\u00b7\s*birthday/i, "");
     if(s.id === "d2" && !/birthday/i.test(s.title)) s.title += " \u00b7 birthday";
-    if(s.id === "across" && /^Tips & incidentals$/.test(s.title)) s.title = "Car, SIM & incidentals";
+    if(s.id === "across" && /^(Tips & incidentals|Car, SIM & incidentals)$/.test(s.title))
+      s.title = "Other costs";   /* generic, so it survives whatever ends up in here */
   });
-  d.titleRev = 3;
+  d.titleRev = 4;
   return d;
 }
 
@@ -773,7 +774,7 @@ function normalise(d){
     /* carried through so migrate() can tell an old backup (old date labels)
        from a current one and only shift the former */
     dateShift: d.dateShift === 2 ? 2 : undefined,
-    titleRev: d.titleRev === 3 ? 3 : undefined,
+    titleRev: d.titleRev === 4 ? 4 : undefined,
     people: isFinite(parseFloat(d.people)) ? parseFloat(d.people) : base.people,
     rate:   isFinite(parseFloat(d.rate))   ? parseFloat(d.rate)   : base.rate,
     buffer: isFinite(parseFloat(d.buffer)) ? parseFloat(d.buffer) : base.buffer,
