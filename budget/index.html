@@ -207,7 +207,7 @@
   <div class="mast-t">
     <div class="k">Master budget</div>
     <h1>Sri Lanka</h1>
-    <div class="s">27 September – 4 October 2026 · everything on this page is editable</div>
+    <div class="s">27 September – 4 October 2026 · Colombo → Kandy → Nuwara Eliya → Galle → Ahangama</div>
   </div>
   <div class="mast-a">
     <button id="bExport" class="iconbtn" title="Export backup — downloads a dated .json" aria-label="Export backup">
@@ -280,6 +280,8 @@ var CATVAR = {Stay:"--c-stay",Transport:"--c-transport",Food:"--c-food",
               Activities:"--c-activities",Flights:"--c-flights",Misc:"--c-misc"};
 
 function mk(cat,name,plan,on){ return {id:uid(),cat:cat,name:name,plan:plan,act:null,on:on!==false}; }
+/* mkA = a line whose real cost is already known and entered */
+function mkA(cat,name,plan,act){ return {id:uid(),cat:cat,name:name,plan:plan,act:act,on:true}; }
 /* ids must not collide with ones already sitting in localStorage from an earlier
    session, so stamp them with the clock rather than a counter that restarts at 0 */
 var _n = 0;
@@ -291,73 +293,64 @@ function defaults(){
    v:1, dateShift:2, titleRev:4, people:3, rate:3.5, buffer:8, view:"total", cur:"INR", tab:"cat",
    sections:[
     {id:"pre", date:"Before you go", title:"Flights & admin", place:"—", open:true, items:[
-      mk("Flights","Parents · Guwahati ⇄ Colombo (2 people)",69782),
-      mk("Flights","Naman · Delhi ⇄ Colombo",21000),
-      mk("Misc","Travel insurance · 3 people, 8 days",2000),
-      mk("Misc","ETA visas · free for Indian passports",0),
-      mk("Transport","Guwahati & Delhi airport cabs",3000)
+      mkA("Flights","Parents · Guwahati ⇄ Colombo · 6E 927 / 1179",69782,66828),
+      mkA("Flights","Naman · Delhi ⇄ Colombo",21000,34805),
+      mkA("Misc","Travel insurance · 2 people, 8 days",1200,910),
+      mk("Misc","Travel insurance · 1 person, 8 days",700),
+      mk("Misc","ETA visas · free for Indian passports",0)
     ]},
-    {id:"d1", date:"Sun 27 Sep", title:"Arrive Colombo", place:"Negombo", open:false, items:[
-      mk("Stay","Negombo hotel · triple, 1 night",9000),
-      mk("Transport","Airport → Negombo transfer",3000),
+    {id:"d1", date:"Sun 27 Sep", title:"Arrive Colombo", place:"Colombo", open:false, items:[
+      mkA("Stay","Taj Samudra, Colombo · triple, 1 night",9000,18000),
+      mkA("Transport","Airport → Taj Samudra transfer",3000,2500),
       mk("Food","Dinner · 3 people",3600)
     ]},
     {id:"d2", date:"Mon 28 Sep", title:"To Kandy · birthday", place:"Kandy", open:false, items:[
-      mk("Stay","Kandy hotel · triple, 1 night",15000),
-      mk("Transport","Car · Negombo → Kandy",6000),
+      mkA("Stay","Cinnamon Citadel Kandy · triple, 1 night",15000,9000),
       mk("Activities","Spice garden",800),
       mk("Activities","Peradeniya Botanical Gardens · 3 entries",2600),
       mk("Activities","Temple of the Tooth · 3 entries",1700),
       mk("Food","Meals · 3 people",6000)
     ]},
     {id:"d3", date:"Tue 29 Sep", title:"Nuwara Eliya", place:"Nuwara Eliya", open:false, items:[
-      mk("Stay","Heritance Tea Factory · triple, 1 night",18000),
-      mk("Transport","Car · Kandy → Nuwara Eliya",6000),
+      mk("Stay","The Ramp, Nuwara Eliya · triple, 1 night",10000),
       mk("Activities","Ramboda Falls",500),
-      mk("Activities","Tea factory tour & tasting · 3",2500),
-      mk("Food","Birthday lunch, high tea, dinner",9000)
+      mk("Activities","Victoria Park & Gregory Lake",800),
+      mk("Food","High tea at the Grand Hotel, meals · 3",6000)
     ]},
-    {id:"d4", date:"Wed 30 Sep", title:"The train to Ella", place:"Ella", open:false, items:[
-      mk("Stay","98 Acres · triple, night 1",15000),
-      mk("Transport","Car · tea estate, Nanu Oya drop, luggage to Ella",6000),
-      mk("Transport","Train · Nanu Oya → Ella, 2nd class reserved × 3",2500),
-      mk("Activities","Pedro tea estate tour · 3",1000),
-      mk("Food","Meals · 3 people",6500)
-    ]},
-    {id:"d5", date:"Thu 1 Oct", title:"Rest day", place:"Ella", open:false, items:[
-      mk("Stay","98 Acres · triple, night 2",15000),
-      mk("Transport","Tuk-tuks · Nine Arch and town",3000),
-      mk("Activities","Flying Ravana zipline",3000),
-      mk("Activities","Nine Arch, Little Adam's Peak, Ravana Falls",3000),
+    {id:"d4", date:"Wed 30 Sep", title:"The train, then the coast", place:"Galle", open:false, items:[
+      mk("Stay","Radisson Blu Resort Galle · night 1",17500),
+      mk("Transport","Train · Nanu Oya → Demodara, 2nd class reserved × 3",2500),
+      mk("Activities","Nine Arch Bridge",500),
       mk("Food","Meals · 3 people",6000)
     ]},
-    {id:"d6", date:"Fri 2 Oct", title:"Down to the coast", place:"Mirissa", open:false, items:[
-      mk("Stay","Mirissa hotel · triple, night 1",13000),
-      mk("Transport","Car · Ella → Mirissa",7000),
-      mk("Food","Meals · 3 people",6000),
-      mk("Misc","Sundries",1500),
-      mk("Activities","Udawalawe safari — optional, parked",18000,false)
-    ]},
-    {id:"d7", date:"Sat 3 Oct", title:"Galle Fort", place:"Mirissa", open:false, items:[
-      mk("Stay","Mirissa hotel · triple, night 2",13000),
-      mk("Transport","Car · Mirissa ⇄ Galle",5000),
+    {id:"d5", date:"Thu 1 Oct", title:"Galle Fort", place:"Galle", open:false, items:[
+      mk("Stay","Radisson Blu Resort Galle · night 2",17500),
       mk("Activities","Galle Fort · museum, café, ramparts",4500),
       mk("Food","Meals · 3 people",6000)
     ]},
+    {id:"d6", date:"Fri 2 Oct", title:"Koggala Lake → Ahangama", place:"Ahangama", open:false, items:[
+      mkA("Stay","Villa H2O, Ahangama · night 1",11500,11500),
+      mk("Activities","Koggala Lake boat safari · 3",6000),
+      mk("Food","Meals · 3 people",6000)
+    ]},
+    {id:"d7", date:"Sat 3 Oct", title:"Rest day", place:"Ahangama", open:false, items:[
+      mkA("Stay","Villa H2O, Ahangama · night 2",11500,11500),
+      mk("Misc","Sundries",1500),
+      mk("Food","Meals · 3 people",6000)
+    ]},
     {id:"d8", date:"Sun 4 Oct", title:"Fly home", place:"Colombo", open:false, items:[
-      mk("Transport","Car · Mirissa → Colombo airport",6000),
-      mk("Food","Breakfast boxes & airport",2250)
+      mk("Food","Breakfast & airport · 3",2250)
     ]},
     {id:"across", date:"Across the trip", title:"Other costs", place:"—", open:false, items:[
-      mk("Misc","Driver's tip · ₹1,200 × 8 days",9600),
-      mk("Misc","SIM cards & data · 3",1800),
-      mk("Misc","Odds and ends",3600)
+      mk("Transport","Car & driver · whole trip",52000),
+      mk("Misc","SIM cards & data · 3",2800),
+      mk("Misc","Odds and ends",10000)
     ]}
    ]
   };
 }
 
-var KEY = "srilanka-budget-v1";
+var KEY = "srilanka-budget-v2";
 
 /* The trip moved one day later (26 Sep–3 Oct became 27 Sep–4 Oct). Anything already
    saved in this browser still carries the old labels, so relabel it on load rather
