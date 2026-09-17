@@ -165,7 +165,7 @@
 
   /* The language toggle sits in the flow, top-left: the audio pill owns the
      fixed top-right corner and grows when it starts playing. */
-  .langrow{display:flex;justify-content:flex-start;margin:0 0 4px}
+  .langrow{display:flex;justify-content:flex-start;margin:10px 0 6px}
 
   /* per-day play, sitting opposite the day tag on the photo */
   .dayplay{position:absolute;top:11px;right:12px;z-index:3;
@@ -550,9 +550,13 @@
 
   btn.addEventListener('click', function(){ set(cur === 'hi' ? 'en' : 'hi'); });
 
-  var saved = null;
+  /* ?lang=hi / ?lang=en wins over whatever this browser saved last time, so a
+     shared link can force the language it was shared in */
+  var q = null, saved = null;
+  try { q = new URLSearchParams(location.search).get('lang'); } catch (err) {}
   try { saved = localStorage.getItem('sl-lang'); } catch (err) {}
-  if (saved === 'hi') set('hi');
+  if (q === 'hi' || q === 'en') set(q);
+  else if (saved === 'hi') set('hi');
 })();
 </script>
 <audio id="tourAudio" preload="none"></audio>
