@@ -157,12 +157,14 @@
     cursor:pointer;color:var(--green);height:34px;width:38px;padding:0;flex:0 0 auto;
     display:flex;align-items:center;justify-content:center}
   .aud button:active{opacity:.5}
+  .aud .pv{border-right:1px solid #ece5d8;width:36px}
   .aud .nx{border-left:1px solid #ece5d8;border-right:1px solid #ece5d8;width:42px}
+  .aud button:disabled{opacity:.28;cursor:default}
   .aud .sp{color:var(--faint);width:34px}
   /* progress hairline along the bottom edge - costs no layout space at all */
   .aud::after{content:"";position:absolute;left:0;bottom:0;height:2px;
     width:var(--p,0%);background:var(--gold);transition:width .25s linear}
-  .aud[data-s="idle"] .nx,.aud[data-s="idle"] .sp,
+  .aud[data-s="idle"] .pv,.aud[data-s="idle"] .nx,.aud[data-s="idle"] .sp,
   .aud[data-s="idle"]::after{display:none}
   /* a few soft pulses on load so she notices it is there at all */
   @keyframes audhint{0%,100%{box-shadow:0 0 0 0 rgba(184,134,42,0)}
@@ -182,7 +184,8 @@
     backdrop-filter:blur(4px)}
   .dayplay:active{transform:scale(.92)}
   .day.plain .body{position:relative}
-  .day.plain .dayplay{top:16px;background:var(--green);border-color:transparent}
+  .day.plain .dayplay{top:14px;right:14px;background:#efe9dd;color:var(--green);
+    border-color:#e3dccf}
 
   @media(prefers-reduced-motion:reduce){
     .aud[data-s="idle"]{animation:none}
@@ -220,6 +223,7 @@
 </head>
 <body>
 <div class="aud" id="aud" data-s="idle">
+  <button type="button" class="pv" id="aPrev" aria-label="Previous"></button>
   <button type="button" class="go" id="aGo" aria-label="Play"></button>
   <button type="button" class="nx" id="aNext" aria-label="Next"></button>
   <button type="button" class="sp" id="aStop" aria-label="Stop"></button>
@@ -429,11 +433,11 @@
 
 <article id="s-d8" class="day plain">
   <div class="body">
-    <div class="wx" data-hi="&lt;b&gt;26&ndash;31&deg;C&lt;/b&gt;। सुबह आम तौर पर दिन का सबसे सूखा हिस्सा होती है, जो जल्दी निकलने के लिए ठीक है।"><b>26&ndash;31&deg;C</b>. Mornings are usually the driest part of the day, which suits an early start.</div>
 
     <div class="tag2" data-hi="दिन 8 · रवि 4 अक्टू">Day 8 &middot; Sun 4 Oct</div>
     <h2 data-hi="घर वापसी">Home</h2>
     <div class="mv" data-hi="अहंगामा → कोलंबो एयरपोर्ट · 155 किमी · करीब 1 घंटा 50 मिनट">Ahangama &rarr; Colombo airport &middot; 155 km &middot; about 1 hr 50</div>
+    <div class="wx" data-hi="&lt;b&gt;26&ndash;31&deg;C&lt;/b&gt;। सुबह आम तौर पर दिन का सबसे सूखा हिस्सा होती है, जो जल्दी निकलने के लिए ठीक है।"><b>26&ndash;31&deg;C</b>. Mornings are usually the driest part of the day, which suits an early start.</div>
     <div class="slot"><div class="lbl" data-hi="तड़के">Early</div><div class="txt" data-hi="करीब 07:15 पर अहंगामा से निकलना, उससे पहले नाश्ता">Leave Ahangama around 07:15, breakfast before we go</div></div>
     <div class="slot"><div class="lbl" data-hi="सुबह">Morning</div><div class="txt" data-hi="09:30 तक एयरपोर्ट, उड़ान 12:30 पर&lt;small&gt;अंतरराष्ट्रीय उड़ान से पूरे तीन घंटे पहले&lt;/small&gt;">At the airport by 09:30, flight at 12:30<small>Three hours clear before an international departure</small></div></div>
   </div>
@@ -591,6 +595,9 @@
     pause:'<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">'
         + '<rect x="3.5" y="2.9" width="3.1" height="10.2" rx="1.1" fill="currentColor"/>'
         + '<rect x="9.4" y="2.9" width="3.1" height="10.2" rx="1.1" fill="currentColor"/></svg>',
+    prev: '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">'
+        + '<path d="M12.8 3.3v9.4L5.9 8z" fill="currentColor"/>'
+        + '<rect x="3" y="3.3" width="2.1" height="9.4" rx="1" fill="currentColor"/></svg>',
     next: '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">'
         + '<path d="M3.2 3.3v9.4L10.1 8z" fill="currentColor"/>'
         + '<rect x="10.9" y="3.3" width="2.1" height="9.4" rx="1" fill="currentColor"/></svg>',
@@ -602,11 +609,13 @@
   var au    = document.getElementById('tourAudio');
   var box   = document.getElementById('aud');
   var bGo   = document.getElementById('aGo');
+  var bPrev = document.getElementById('aPrev');
   var bNext = document.getElementById('aNext');
   var bStop = document.getElementById('aStop');
   var i = -1, on = false, solo = false;
 
   bGo.innerHTML = I.play; bNext.innerHTML = I.next; bStop.innerHTML = I.stop;
+  bPrev.innerHTML = I.prev;
 
   /* one play button per day card, dropped opposite the day tag */
   SEGS.forEach(function(s, k){
@@ -644,6 +653,7 @@
     au.src = 'audio/' + s.id + '.mp3';
     au.play().catch(function(){});
     bGo.innerHTML = I.pause;
+    bPrev.disabled = (i <= 0);
   }
 
   function stop(){
@@ -660,6 +670,8 @@
     else { au.pause(); bGo.innerHTML = I.play; }
   });
   /* skipping on from a single-day listen carries on through the rest */
+  /* straight to the previous section, if there is one */
+  bPrev.addEventListener('click', function(){ if (i > 0) play(i - 1, false); });
   bNext.addEventListener('click', function(){ play(i + 1, false); });
   bStop.addEventListener('click', stop);
 
